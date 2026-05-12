@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Mobito — Lisans Yönetim Paneli</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --border: #30363d;
+    --ink: #e6edf3;
+    --ink-2: #8b949e;
+    --ink-3: #484f58;
+    --teal: #0a9688;
+    --teal-bg: rgba(10,150,136,0.1);
+    --teal-border: rgba(10,150,136,0.3);
+    --green: #3fb950;
+    --green-bg: rgba(63,185,80,0.1);
+    --red: #f85149;
+    --red-bg: rgba(248,81,73,0.1);
+    --amber: #d29922;
+    --amber-bg: rgba(210,153,34,0.1);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans', sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card);
+  }
+  .logo { font-family:'JetBrains Mono',monospace; font-size:1.3rem; font-weight:700; letter-spacing:-0.04em; }
+  .logo span { color: var(--teal); }
+  .header-sub { font-size:0.72rem; color:var(--ink-3); font-family:'JetBrains Mono',monospace; margin-top:2px; }
+  .status-dot { width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; margin-right:6px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .main { max-width:1100px; margin:0 auto; padding:32px; }
+
+  .grid-2 { display:grid; grid-template-columns:380px 1fr; gap:24px; margin-bottom:24px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title { font-size:0.82rem; font-weight:600; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-2); }
+  .card-body { padding:20px; }
+
+  .form-group { margin-bottom:14px; }
+  .form-group label { display:block; font-size:0.72rem; color:var(--ink-2); margin-bottom:5px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.06em; }
+  .form-group input, .form-group select {
+    width:100%; padding:9px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius:6px; color:var(--ink);
+    font-family:'DM Sans',sans-serif; font-size:0.85rem;
+    outline:none; transition: border-color 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--teal); }
+  .form-group select option { background: var(--card); }
+
+  .key-preview {
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--teal-border);
+    border-radius:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.85rem;
+    color:var(--teal);
+    letter-spacing:0.08em;
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .key-preview-label { font-size:0.6rem; color:var(--ink-3); display:block; margin-bottom:3px; text-transform:uppercase; letter-spacing:0.1em; }
+
+  .btn {
+    padding: 9px 18px;
+    border-radius:6px; border:none; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600;
+    transition:all 0.15s;
+  }
+  .btn-primary { background:var(--teal); color:white; width:100%; padding:11px; }
+  .btn-primary:hover { background:#0bc5b5; }
+  .btn-sm { padding:5px 11px; font-size:0.72rem; }
+  .btn-ghost { background:transparent; border:1px solid var(--border); color:var(--ink-2); }
+  .btn-ghost:hover { border-color:var(--teal); color:var(--teal); }
+  .btn-danger { background:var(--red-bg); border:1px solid rgba(248,81,73,0.3); color:var(--red); }
+  .btn-success { background:var(--green-bg); border:1px solid rgba(63,185,80,0.3); color:var(--green); }
+
+  table { width:100%; border-collapse:collapse; }
+  thead th {
+    padding:10px 14px; text-align:left;
+    font-size:0.65rem; font-family:'JetBrains Mono',monospace;
+    text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-3);
+    border-bottom:1px solid var(--border);
+  }
+  tbody tr { border-bottom:1px solid rgba(48,54,61,0.5); transition:background 0.1s; }
+  tbody tr:hover { background:rgba(255,255,255,0.02); }
+  tbody td { padding:11px 14px; font-size:0.82rem; }
+  .mono { font-family:'JetBrains Mono',monospace; font-size:0.75rem; }
+
+  .badge {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 8px; border-radius:4px; font-size:0.65rem;
+    font-weight:600; font-family:'JetBrains Mono',monospace;
+  }
+  .badge-green { background:var(--green-bg); color:var(--green); border:1px solid rgba(63,185,80,0.2); }
+  .badge-red   { background:var(--red-bg);   color:var(--red);   border:1px solid rgba(248,81,73,0.2); }
+  .badge-amber { background:var(--amber-bg); color:var(--amber); border:1px solid rgba(210,153,34,0.2); }
+
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:16px 20px; }
+  .stat-val { font-size:1.8rem; font-weight:700; font-family:'JetBrains Mono',monospace; }
+  .stat-lbl { font-size:0.65rem; color:var(--ink-3); text-transform:uppercase; letter-spacing:0.1em; margin-top:3px; }
+
+  .toast {
+    position:fixed; bottom:24px; right:24px;
+    background:var(--card); border:1px solid var(--teal-border);
+    border-radius:8px; padding:12px 16px;
+    font-size:0.82rem; color:var(--ink);
+    box-shadow:0 8px 24px rgba(0,0,0,0.4);
+    display:none; z-index:9999;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  .empty { padding:40px; text-align:center; color:var(--ink-3); font-size:0.82rem; }
+
+  .filter-row { display:flex; gap:10px; margin-bottom:16px; align-items:center; }
+  .filter-row input {
+    background:var(--bg); border:1px solid var(--border); border-radius:6px;
+    padding:7px 12px; color:var(--ink); font-size:0.82rem; outline:none; flex:1;
+  }
+  .filter-row input:focus { border-color:var(--teal); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">mobi<span>to</span> <span style="font-size:0.7rem;color:var(--ink-3);font-weight:400;">// lisans paneli</span></div>
+    <div class="header-sub">shukitech · supabase · odkrukfsbntasspxxxmt</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--ink-2);">
+    <span class="status-dot"></span> Bağlı
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- İstatistikler -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-val" id="stat-toplam">—</div>
+      <div class="stat-lbl">Toplam Lisans</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--green);" id="stat-aktif">—</div>
+      <div class="stat-lbl">Aktif</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:var(--red);" id="stat-pasif">—</div>
+      <div class="stat-lbl">Pasif / Süresi Dolmuş</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+
+    <!-- Yeni Lisans Oluştur -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Yeni Lisans Oluştur</div>
+        <button class="btn btn-ghost btn-sm" onclick="yeniKeyUret()">↺ Key Üret</button>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Lisans Key</label>
+          <div class="key-preview">
+            <div>
+              <span class="key-preview-label">Otomatik Üretilen Key</span>
+              <span id="key-preview-val">—</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="keyKopyala()" style="font-size:0.65rem;">Kopyala</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Müşteri Adı *</label>
+          <input type="text" id="f-musteri" placeholder="Ahmet Mobilya">
+        </div>
+        <div class="form-group">
+          <label>E-posta</label>
+          <input type="email" id="f-email" placeholder="info@ahmetmobilya.com">
+        </div>
+        <div class="form-group">
+          <label>Paket</label>
+          <select id="f-paket">
+            <option value="standart">Standart</option>
+            <option value="pro">Pro</option>
+            <option value="kurumsal">Kurumsal</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Süre</label>
+          <select id="f-sure">
+            <option value="1">1 Yıl</option>
+            <option value="2">2 Yıl</option>
+            <option value="3">3 Yıl</option>
+            <option value="0">Süresiz</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="lisansOlustur()">✓ Lisans Oluştur</button>
+      </div>
+    </div>
+
+    <!-- Lisans Listesi -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">Tüm Lisanslar</div>
+        <button class="btn btn-ghost btn-sm" onclick="lisanslariYukle()">↺ Yenile</button>
+      </div>
+      <div class="card-body" style="padding:14px;">
+        <div class="filter-row">
+          <input type="text" id="ara" placeholder="Müşteri veya key ara..." oninput="listeFiltreله()">
+          <select id="durum-filtre" onchange="listeFiltreله()" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--ink);font-size:0.78rem;outline:none;">
+            <option value="">Tümü</option>
+            <option value="aktif">Aktif</option>
+            <option value="pasif">Pasif</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Key</th>
+                <th>Müşteri</th>
+                <th>Bitiş</th>
+                <th>Durum</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="lisans-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://odkrukfsbntasspxxxmt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ka3J1a2ZzYm50YXNzcHh4eG10Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgxNDg0NTksImV4cCI6MjA5MzcyNDQ1OX0.NneUJr3KwtcWfQkGM2eSfbid3pOjGfpmWE2wiku0RwU';
+
+const headers = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+};
+
+let tumLisanslar = [];
+
+async function api(method, path, body) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    method, headers: { ...headers, 'Prefer': method === 'POST' ? 'return=representation' : '' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+function yeniKeyUret() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const rand4 = () => Array.from({length:4}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+  const yil = new Date().getFullYear();
+  const key = `MOBT-${yil}-${rand4()}-${rand4()}`;
+  document.getElementById('key-preview-val').textContent = key;
+  return key;
+}
+
+function keyKopyala() {
+  const key = document.getElementById('key-preview-val').textContent;
+  if (key === '—') return;
+  navigator.clipboard.writeText(key);
+  toast('Key kopyalandı!');
+}
+
+async function lisansOlustur() {
+  const key     = document.getElementById('key-preview-val').textContent;
+  const musteri = document.getElementById('f-musteri').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const paket   = document.getElementById('f-paket').value;
+  const sure    = parseInt(document.getElementById('f-sure').value);
+
+  if (key === '—') { toast('Önce key üretin!', true); return; }
+  if (!musteri)    { toast('Müşteri adı zorunludur!', true); return; }
+
+  let bitis_tarihi;
+  if (sure === 0) {
+    bitis_tarihi = '2099-12-31';
+  } else {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + sure);
+    bitis_tarihi = d.toISOString().split('T')[0];
+  }
+
+  try {
+    await api('POST', 'lisanslar', {
+      key, musteri_adi: musteri, email, paket, durum: 'aktif', bitis_tarihi,
+    });
+    toast('✓ Lisans oluşturuldu: ' + key);
+    document.getElementById('f-musteri').value = '';
+    document.getElementById('f-email').value = '';
+    yeniKeyUret();
+    lisanslariYukle();
+  } catch(e) {
+    toast('Hata: ' + e.message, true);
+  }
+}
+
+async function lisanslariYukle() {
+  try {
+    const data = await api('GET', 'lisanslar?select=*&order=created_at.desc');
+    tumLisanslar = data;
+    listeGoster(data);
+    istatistikGunelle(data);
+  } catch(e) {
+    toast('Yükleme hatası: ' + e.message, true);
+  }
+}
+
+function istatistikGunelle(list) {
+  const bugun = new Date().toISOString().split('T')[0];
+  const aktif = list.filter(l => l.durum === 'aktif' && l.bitis_tarihi >= bugun).length;
+  document.getElementById('stat-toplam').textContent = list.length;
+  document.getElementById('stat-aktif').textContent  = aktif;
+  document.getElementById('stat-pasif').textContent  = list.length - aktif;
+}
+
+function listeFiltreله() {
+  const ara   = document.getElementById('ara').value.toLowerCase();
+  const durum = document.getElementById('durum-filtre').value;
+  const bugun = new Date().toISOString().split('T')[0];
+
+  const filtered = tumLisanslar.filter(l => {
+    const aktif = l.durum === 'aktif' && l.bitis_tarihi >= bugun;
+    if (durum === 'aktif' && !aktif) return false;
+    if (durum === 'pasif' && aktif) return false;
+    if (ara && !l.musteri_adi?.toLowerCase().includes(ara) && !l.key?.toLowerCase().includes(ara)) return false;
+    return true;
+  });
+  listeGoster(filtered);
+}
+
+function listeGoster(list) {
+  const tbody = document.getElementById('lisans-tbody');
+  const bugun = new Date().toISOString().split('T')[0];
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty">Lisans bulunamadı.</div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(l => {
+    const aktif = l.durum === 'aktif' && l.bitis_tarihi >= bugun;
+    const yakin = aktif && l.bitis_tarihi <= new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
+    const badge = aktif
+      ? (yakin ? `<span class="badge badge-amber">⚠ Yakında Bitiyor</span>` : `<span class="badge badge-green">● Aktif</span>`)
+      : `<span class="badge badge-red">✕ Pasif</span>`;
+
+    return `<tr>
+      <td class="mono" style="color:var(--teal);">${l.key}</td>
+      <td>${l.musteri_adi||'—'}</td>
+      <td class="mono" style="font-size:0.7rem;color:var(--ink-2);">${l.bitis_tarihi?.slice(0,10)||'—'}</td>
+      <td>${badge}</td>
+      <td style="display:flex;gap:5px;">
+        <button class="btn btn-ghost btn-sm" onclick="keyKopyalaItem('${l.key}')" title="Kopyala">⎘</button>
+        ${aktif
+          ? `<button class="btn btn-danger btn-sm" onclick="lisansIptal('${l.id}')">İptal</button>`
+          : `<button class="btn btn-success btn-sm" onclick="lisansAktifle('${l.id}')">Aktifle</button>`
+        }
+        <button class="btn btn-ghost btn-sm" onclick="sureUzat('${l.id}')" title="1 Yıl Uzat">+1y</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function keyKopyalaItem(key) {
+  navigator.clipboard.writeText(key);
+  toast('Key kopyalandı: ' + key);
+}
+
+async function lisansIptal(id) {
+  if (!confirm('Bu lisansı iptal etmek istediğinizden emin misiniz?')) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/lisanslar?id=eq.${id}`, {
+      method: 'PATCH', headers,
+      body: JSON.stringify({ durum: 'pasif' }),
+    });
+    toast('Lisans iptal edildi');
+    lisanslariYukle();
+  } catch(e) { toast('Hata: ' + e.message, true); }
+}
+
+async function lisansAktifle(id) {
+  try {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+    await fetch(`${SUPABASE_URL}/rest/v1/lisanslar?id=eq.${id}`, {
+      method: 'PATCH', headers,
+      body: JSON.stringify({ durum: 'aktif', bitis_tarihi: d.toISOString().split('T')[0] }),
+    });
+    toast('Lisans aktifleştirildi');
+    lisanslariYukle();
+  } catch(e) { toast('Hata: ' + e.message, true); }
+}
+
+async function sureUzat(id) {
+  try {
+    const data = tumLisanslar.find(l => l.id == id);
+    const mevcut = data?.bitis_tarihi ? new Date(data.bitis_tarihi) : new Date();
+    mevcut.setFullYear(mevcut.getFullYear() + 1);
+    await fetch(`${SUPABASE_URL}/rest/v1/lisanslar?id=eq.${id}`, {
+      method: 'PATCH', headers,
+      body: JSON.stringify({ bitis_tarihi: mevcut.toISOString().split('T')[0] }),
+    });
+    toast('Süre 1 yıl uzatıldı');
+    lisanslariYukle();
+  } catch(e) { toast('Hata: ' + e.message, true); }
+}
+
+function toast(msg, hata=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.borderColor = hata ? 'rgba(248,81,73,0.3)' : 'var(--teal-border)';
+  el.style.color = hata ? 'var(--red)' : 'var(--ink)';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// Başlat
+yeniKeyUret();
+lisanslariYukle();
+</script>
+</body>
+</html>
